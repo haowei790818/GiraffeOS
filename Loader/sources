@@ -1,0 +1,8 @@
+TARGETNAME=giraffeosloader
+TARGETTYPE=DRIVER
+
+
+
+
+SOURCES=loader.c
+
