@@ -6,6 +6,8 @@
 ; PROGRAMMER:      BorisJineman(xuezhe.liu@hotmail.com)
 ; UPDATE HISTORY:
 ;                  Created 2013-3-21
+;				   Modify by BorisJineman 2013-3-29
+;						Changed memory size to 1792M~2048M
 ;
 ;	The Boot Code Start With 0x00080000
 ;	The Data On 0x00081000
@@ -27,10 +29,6 @@ BITS 16					;start with bit16(real mode)
 
 _APstart:
 	  cli
-
-
-
-
 
 
 test_real_start:
@@ -95,12 +93,12 @@ protected_mode_begin:
   mov	ss, ax
 
 
-  mov   esp, 01F000000h		; the stack 0xDF000000
+  mov   esp, 00F000000h		; the stack 0x7F000000
 
 
 start_main:
   jmp $
-  jmp  MAIN_CS:0			; main fun ptr 0xC0000000
+  jmp  MAIN_CS:0			; main fun ptr 0x70000000
 
 
   hlt
@@ -132,13 +130,13 @@ gdt:
   dw	0x9200
   dw	0x00cf
 
-  dw	0xffff    ; Main code descriptor	0xC0000000~0xFFFFFFFF
+  dw	0xffff    ; Main code descriptor	0x70000000~0xFFFFFFFF
   dw	0x0000
   dw	0x9a00
-  dw	0xc0c3
+  dw	0x70c8
 
-  dw	0xffff    ; Main data descriptor	0xC0000000~0xFFFFFFFF
+  dw	0xffff    ; Main data descriptor	0x70000000~0xFFFFFFFF
   dw	0x0000
   dw	0x9200
-  dw	0xc0c3
+  dw	0x70c8
 
