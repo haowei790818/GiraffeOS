@@ -4,5 +4,5 @@ TARGETTYPE=DRIVER
 
 
 
-SOURCES=loader.c
+SOURCES=boot.c
 

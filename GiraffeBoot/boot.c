@@ -1,5 +1,5 @@
 /*
- * loader.c
+ * boot.c
  *
  *  Created on: 2013-3-21
  *      Author: BorisJineman
@@ -10,7 +10,7 @@
 
 
 #include <ntddk.h>          // various NT definitions
-#include "loader.h"
+#include "boot.h"
 
 
 DRIVER_INITIALIZE DriverEntry;

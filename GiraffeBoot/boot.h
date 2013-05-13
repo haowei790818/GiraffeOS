@@ -1,12 +1,12 @@
 /*
- * loader.h
+ * boot.h
  *
  *  Created on: 2013-3-21
  *      Author: BorisJineman
  */
 
-#ifndef LOADER_H_
-#define LOADER_H_
+#ifndef BOOT_H_
+#define BOOT_H_
 
 #define CMOS_WRITE(address, value) { WRITE_PORT_UCHAR((PUCHAR)0x70, address); WRITE_PORT_UCHAR((PUCHAR)0x71, value); }
 
@@ -204,4 +204,4 @@ typedef struct _APIC {
 
 
 
-#endif /* LOADER_H_ */
+#endif /* BOOT_H_ */
