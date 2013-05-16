@@ -2,3 +2,14 @@ GiraffeOS
 =========
 
 GiraffeOS,Run with Windows,side by side,and Run in x86,another CPU of Mulit-Porcesser
+
+GiraffeLoader:
+A task loader,for load a task to run.
+
+GiraffeBoot:
+the OS's boot loader,Start another CPU,To Run the Task.
+
+and soon...
+
+Anything More? just visit our website.
+http://www.giraffetea.com/?cat=33
