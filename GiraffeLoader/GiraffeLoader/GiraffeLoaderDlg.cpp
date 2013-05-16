@@ -122,17 +122,17 @@ BOOL CGiraffeLoaderDlg::OnInitDialog()
 
 	this->m_hMenu=this->GetMenu();
 
-	if(this->m_pTaskCtrl->get_TaskRunState())
+	if(!this->m_pTaskCtrl->get_TaskRunState())
 	{
 		this->m_hRunOrStop.SetWindowText(_T("Run"));
-		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,TRUE);
-		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,FALSE);
+		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_ENABLED);
+		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_DISABLED);
 	}
 	else
 	{
 		this->m_hRunOrStop.SetWindowText(_T("Stop"));
-		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,TRUE);
-		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,FALSE);
+		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_DISABLED);
+		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_ENABLED);
 	}
 
 	SYSTEMTIME sys_time;
@@ -242,15 +242,16 @@ void CGiraffeLoaderDlg::OnBnClickedBtnrunorstop()
 	{
 		this->m_pTaskCtrl->set_TaskRunState(true);
 		this->m_hRunOrStop.SetWindowText(_T("Stop"));		
-		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,FALSE);
-		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,TRUE);
+		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_DISABLED);
+		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_ENABLED);
 	}
 	else
 	{
 		this->m_pTaskCtrl->set_TaskRunState(false);
 		this->m_hRunOrStop.SetWindowText(_T("Run"));
-		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,TRUE);
-		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,FALSE);
+		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_ENABLED);
+		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_DISABLED);
+
 	}
 }
 
@@ -261,8 +262,8 @@ void CGiraffeLoaderDlg::OnOperationRun()
 	
 	this->m_pTaskCtrl->set_TaskRunState(true);
 	this->m_hRunOrStop.SetWindowText(_T("Stop"));		
-	m_hMenu->EnableMenuItem(ID_OPERATION_RUN,FALSE);
-	m_hMenu->EnableMenuItem(ID_OPERATION_STOP,TRUE);
+	m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_DISABLED);
+	m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_ENABLED);
 }
 
 
@@ -270,9 +271,10 @@ void CGiraffeLoaderDlg::OnOperationStop()
 {
 	// TODO: 在此添加命令处理程序代码 
 
+	this->m_pTaskCtrl->set_TaskRunState(false);
 	this->m_hRunOrStop.SetWindowText(_T("Run"));
-	m_hMenu->EnableMenuItem(ID_OPERATION_RUN,TRUE);
-	m_hMenu->EnableMenuItem(ID_OPERATION_STOP,FALSE);
+	m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_ENABLED);
+	m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_DISABLED);
 }
 
 

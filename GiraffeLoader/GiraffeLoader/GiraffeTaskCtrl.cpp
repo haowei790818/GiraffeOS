@@ -4,6 +4,7 @@
 
 CGiraffeTaskCtrl::CGiraffeTaskCtrl(void)
 {
+	runState=false;
 }
 
 
