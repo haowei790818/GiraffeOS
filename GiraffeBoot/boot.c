@@ -29,6 +29,9 @@ DRIVER_DISPATCH SioctlDeviceControl;
 DRIVER_UNLOAD UnloadGiraffeOS;
 
 APIC * pAPIC=0;
+void StartCPU(int CPUID);
+
+
 
 NTSTATUS DriverEntry(__in PDRIVER_OBJECT DriverObject,__in PUNICODE_STRING RegistryPath)
 {
@@ -104,11 +107,6 @@ NTSTATUS DriverEntry(__in PDRIVER_OBJECT DriverObject,__in PUNICODE_STRING Regis
 	PHYSICAL_ADDRESS PhysicalAddress;
 	unsigned char * p_mem=0;
 
-	unsigned int acpi_ICR1_temp=0;
-	unsigned int acpi_ICR2_temp=0;
-
-	LARGE_INTEGER startTime;
-	LARGE_INTEGER currentTime;
 
 	unsigned char ap_boot_code[149] = {
 			0xFA, 0x31, 0xC0, 0x8E, 0xD8, 0x8E, 0xD0, 0xB8, 0x00, 0x80, 0x8E, 0xD8, 0xBB, 0x00, 0x10, 0xB9,
@@ -161,6 +159,23 @@ NTSTATUS DriverEntry(__in PDRIVER_OBJECT DriverObject,__in PUNICODE_STRING Regis
 
 
 
+	
+	StartCPU(1);
+
+
+    return 0;
+}
+
+
+void StartCPU(int CPUID)
+{
+
+	unsigned int acpi_ICR1_temp=0;
+	unsigned int acpi_ICR2_temp=0;
+
+	LARGE_INTEGER startTime;
+	LARGE_INTEGER currentTime;
+
 	CMOS_WRITE(0x0f,0x0a);   //System Shutdown Code
 
 	acpi_ICR2_temp=0x01000000;   //select cpu 1
@@ -196,10 +211,6 @@ NTSTATUS DriverEntry(__in PDRIVER_OBJECT DriverObject,__in PUNICODE_STRING Regis
 		KeQuerySystemTime(&currentTime);
 		if((currentTime.QuadPart-startTime.QuadPart) >= 10*10000) break;
 	}
-
-
-
-    return 0;
 }
 
 
