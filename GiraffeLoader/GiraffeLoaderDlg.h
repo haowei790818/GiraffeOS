@@ -6,7 +6,7 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 
-class CGiraffeTaskCtrl;
+class CGiraffeDriver;
 
 // CGiraffeLoaderDlg dialog
 class CGiraffeLoaderDlg : public CDialogEx
@@ -38,10 +38,14 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg void OnHelpAbout();
 	CButton m_hRunOrStop;
-	CGiraffeTaskCtrl* m_pTaskCtrl;
 	CMenu* m_hMenu;
+	CGiraffeDriver* m_pDevice;
+	
 	afx_msg void OnBnClickedBtnrunorstop();
 	afx_msg void OnOperationRun();
 	afx_msg void OnOperationStop();
 	afx_msg void OnFileExit();
+	afx_msg void OnClose();
+	CEdit m_hTaskFile;
+	afx_msg void OnBnClickedBtnsettaskfile();
 };

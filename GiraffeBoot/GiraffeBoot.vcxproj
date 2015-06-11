@@ -72,7 +72,9 @@
     <ClCompile Include="boot.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="apic.h" />
     <ClInclude Include="boot.h" />
+    <ClInclude Include="ioctl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

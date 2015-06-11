@@ -5,13 +5,17 @@ public:
 	CGiraffeDriver();
 	~CGiraffeDriver();
 
-	bool StartDriver();
+	BOOL StartDriver();
 	void StopDriver();
 
-	void ApplySettingToGiraffe(int cpuID, unsigned int memorySize);
-	void SetApplicationBin(unsigned char * data, unsigned int length);
+	void ApplySettingToGiraffe(unsigned long cpuID, unsigned long memorySize);
+	void SetApplicationBin(unsigned char * data, unsigned long length);
 	void StartApplication();
 	void StopApplication();	
+
+	BOOL IsApplicationRunning();
+
+
 
 };
 

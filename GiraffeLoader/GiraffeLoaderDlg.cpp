@@ -7,7 +7,7 @@
 #include "GiraffeLoaderDlg.h"
 #include "afxdialogex.h"
 
-#include "GiraffeTaskCtrl.h"
+#include "GiraffeDriver.h"
 
 
 #ifdef _DEBUG
@@ -53,7 +53,6 @@ END_MESSAGE_MAP()
 
 CGiraffeLoaderDlg::CGiraffeLoaderDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CGiraffeLoaderDlg::IDD, pParent)
-	, m_pTaskCtrl(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -63,6 +62,7 @@ void CGiraffeLoaderDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_ListOutput, m_hOutput);
 	DDX_Control(pDX, IDC_BtnRunOrStop, m_hRunOrStop);
+	DDX_Control(pDX, IDC_EditTaskFile, m_hTaskFile);
 }
 
 BEGIN_MESSAGE_MAP(CGiraffeLoaderDlg, CDialogEx)
@@ -76,6 +76,8 @@ BEGIN_MESSAGE_MAP(CGiraffeLoaderDlg, CDialogEx)
 	ON_COMMAND(ID_OPERATION_RUN, &CGiraffeLoaderDlg::OnOperationRun)
 	ON_COMMAND(ID_OPERATION_STOP, &CGiraffeLoaderDlg::OnOperationStop)
 	ON_COMMAND(ID_FILE_EXIT, &CGiraffeLoaderDlg::OnFileExit)
+	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDC_BtnSetTaskFile, &CGiraffeLoaderDlg::OnBnClickedBtnsettaskfile)
 END_MESSAGE_MAP()
 
 
@@ -112,7 +114,7 @@ BOOL CGiraffeLoaderDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 	
-	WORD dwStyle = this->m_hOutput.GetExtendedStyle();
+	DWORD dwStyle = this->m_hOutput.GetExtendedStyle();
 	dwStyle |= LVS_EX_GRIDLINES;
 	dwStyle |= LVS_EX_FULLROWSELECT;
 	this->m_hOutput.SetExtendedStyle(dwStyle);
@@ -122,7 +124,7 @@ BOOL CGiraffeLoaderDlg::OnInitDialog()
 
 	this->m_hMenu=this->GetMenu();
 
-	if(!this->m_pTaskCtrl->get_TaskRunState())
+	if(!this->m_pDevice->IsApplicationRunning())
 	{
 		this->m_hRunOrStop.SetWindowText(_T("Run"));
 		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_ENABLED);
@@ -144,8 +146,6 @@ BOOL CGiraffeLoaderDlg::OnInitDialog()
 	this->m_hOutput.InsertItem(0,str);
 	this->m_hOutput.SetItemText(0,1,_T("Loader Start."));
 	
-		
-
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -165,7 +165,6 @@ void CGiraffeLoaderDlg::OnSysCommand(UINT nID, LPARAM lParam)
 // If you add a minimize button to your dialog, you will need the code below
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
-
 void CGiraffeLoaderDlg::OnPaint()
 {
 	if (IsIconic())
@@ -207,9 +206,10 @@ int CGiraffeLoaderDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  在此添加您专用的创建代码
 	
-	m_pTaskCtrl=new CGiraffeTaskCtrl();
+	m_pDevice = new CGiraffeDriver();
 
-
+	m_pDevice->StartDriver();
+	
 	return 0;
 }
 
@@ -219,8 +219,11 @@ void CGiraffeLoaderDlg::OnDestroy()
 	CDialogEx::OnDestroy();
 
 	// TODO: 在此处添加消息处理程序代码
-	
-	delete m_pTaskCtrl;
+
+	m_pDevice->StopApplication();
+	m_pDevice->StopDriver();
+
+	delete m_pDevice;
 }
 
 
@@ -240,18 +243,11 @@ void CGiraffeLoaderDlg::OnBnClickedBtnrunorstop()
 	this->m_hRunOrStop.GetWindowText(str);
 	if(str==_T("Run"))
 	{
-		this->m_pTaskCtrl->set_TaskRunState(true);
-		this->m_hRunOrStop.SetWindowText(_T("Stop"));		
-		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_DISABLED);
-		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_ENABLED);
+		this->OnOperationRun();
 	}
 	else
 	{
-		this->m_pTaskCtrl->set_TaskRunState(false);
-		this->m_hRunOrStop.SetWindowText(_T("Run"));
-		m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_ENABLED);
-		m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_DISABLED);
-
+		this->OnOperationStop();
 	}
 }
 
@@ -259,8 +255,22 @@ void CGiraffeLoaderDlg::OnBnClickedBtnrunorstop()
 void CGiraffeLoaderDlg::OnOperationRun()
 {
 	// TODO: 在此添加命令处理程序代码
-	
-	this->m_pTaskCtrl->set_TaskRunState(true);
+
+	CString tmpStr;
+	this->m_hTaskFile.GetWindowTextW(tmpStr);
+	CFile *pFile = new CFile(tmpStr, CFile::modeRead);
+	unsigned long len = (unsigned long)pFile->GetLength();
+	unsigned char *pData = (unsigned char *)malloc(len);
+
+	pFile->Read(pData, len);
+	delete pFile;
+
+	this->m_pDevice->SetApplicationBin(pData, len);
+
+	free(pData);	
+
+	this->m_pDevice->StartApplication();
+
 	this->m_hRunOrStop.SetWindowText(_T("Stop"));		
 	m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_DISABLED);
 	m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_ENABLED);
@@ -271,7 +281,8 @@ void CGiraffeLoaderDlg::OnOperationStop()
 {
 	// TODO: 在此添加命令处理程序代码 
 
-	this->m_pTaskCtrl->set_TaskRunState(false);
+	this->m_pDevice->StopApplication();
+
 	this->m_hRunOrStop.SetWindowText(_T("Run"));
 	m_hMenu->EnableMenuItem(ID_OPERATION_RUN,MF_ENABLED);
 	m_hMenu->EnableMenuItem(ID_OPERATION_STOP,MF_DISABLED);
@@ -283,4 +294,21 @@ void CGiraffeLoaderDlg::OnFileExit()
 	// TODO: 在此添加命令处理程序代码
 	
 	this->DestroyWindow();
+}
+
+
+void CGiraffeLoaderDlg::OnClose()
+{
+	// TODO: Add your message handler code here and/or call default
+	
+	CDialogEx::OnClose();
+}
+
+void CGiraffeLoaderDlg::OnBnClickedBtnsettaskfile()
+{
+	// TODO: Add your control notification handler code here
+	CFileDialog *pDlg = new CFileDialog(TRUE);
+	pDlg->DoModal();
+
+	m_hTaskFile.SetWindowTextW(pDlg->GetPathName());
 }

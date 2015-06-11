@@ -1,7 +1,9 @@
-#include <Windows.h>
-#include <boot.h>
-
 #include "stdafx.h"
+#include <Windows.h>
+#include <winsvc.h>
+#include <boot.h>
+#include <winioctl.h>
+#include <ioctl.h>
 #include "global.h"
 #include "GiraffeDriver.h"
 
@@ -17,22 +19,24 @@ CGiraffeDriver::~CGiraffeDriver()
 }
 
 
-bool CGiraffeDriver::StartDriver()
+BOOL CGiraffeDriver::StartDriver()
 {
 	TCHAR sername[32] = GIRAFFEOS_SERVICE_NAME;
 	TCHAR disname[32] = GIRAFFEOS_SERVICE_DISPLAY_NAME;
 	TCHAR path[256] = GIRAFFEOS_DRIVER_PATH;
 	SC_HANDLE scmHandle;
 	SC_HANDLE serviceHandle;
+	DWORD debugCode = 0;
 
 	do
 	{
-		SC_HANDLE scmHandle = ::OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+		scmHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 		if (!scmHandle)
 		{
+			debugCode = GetLastError();
 			break;
 		}
-		SC_HANDLE serviceHandle = ::CreateService(scmHandle,
+		serviceHandle = CreateService(scmHandle,
 			sername,
 			disname,
 			SERVICE_ALL_ACCESS,
@@ -71,7 +75,7 @@ bool CGiraffeDriver::StartDriver()
 		CloseServiceHandle(scmHandle);
 	}
 	
-	return false;
+	return FALSE;
 }
 
 void CGiraffeDriver::StopDriver()
@@ -80,48 +84,79 @@ void CGiraffeDriver::StopDriver()
 	SC_HANDLE scmHandle;
 	SC_HANDLE serviceHandle;
 	SERVICE_STATUS ss;
-
-	scmHandle = ::OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-	if (!scmHandle)
+	do
 	{
-		return;
-	}
+		scmHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+		if (!scmHandle)
+		{
+			break;
+		}
 
-	serviceHandle = OpenService(scmHandle, sername, SERVICE_ALL_ACCESS);
-	if (!serviceHandle)
-	{
-		return;
-	}
-	ControlService(serviceHandle, SERVICE_CONTROL_STOP, &ss);
-	DeleteService(serviceHandle);
+		serviceHandle = OpenService(scmHandle, sername, SERVICE_ALL_ACCESS);
+		if (!serviceHandle)
+		{
+			break;
+		}
+		ControlService(serviceHandle, SERVICE_CONTROL_STOP, &ss);
+		DeleteService(serviceHandle);
 
-	if (!serviceHandle)
+	} while (false);
+	
+
+	if (serviceHandle)
 	{
 		CloseServiceHandle(serviceHandle);
 	}
 
-	if (!scmHandle)
+	if (scmHandle)
 	{
 		CloseServiceHandle(scmHandle);
 	}
 }
 
-void CGiraffeDriver::ApplySettingToGiraffe(int cpuID, unsigned int memorySize)
+void CGiraffeDriver::ApplySettingToGiraffe(unsigned long cpuID, unsigned long memorySize)
 {
+	BootSetting setting;
 
+	HANDLE device = CreateFile(NT_DEVICE_NAME, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	DWORD retLen = 0;
+	setting.CPUID = cpuID;
+	setting.AllocMemory = memorySize;
+	DeviceIoControl(device, IOCTL_GIRAFFEOS_METHOD_APPLY_SETTING, &setting, sizeof(BootSetting), NULL, 0, &retLen, NULL);
+	CloseHandle(device);
+	
 }
 
-void CGiraffeDriver::SetApplicationBin(unsigned char * data, unsigned int length)
+void CGiraffeDriver::SetApplicationBin(unsigned char * data, unsigned long length)
 {
+	HANDLE device = CreateFile(NT_DEVICE_NAME, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	DWORD retLen = 0;
+	DeviceIoControl(device, IOCTL_GIRAFFEOS_METHOD_SET_APPLICATION_BIN, data, length, NULL, 0, &retLen, NULL);
+	CloseHandle(device);
 
 }
 
 void CGiraffeDriver::StartApplication()
 {
-
+	HANDLE device = CreateFile(NT_DEVICE_NAME, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	DWORD retLen = 0;
+	DeviceIoControl(device, IOCTL_GIRAFFEOS_METHOD_START_APPLICATION, NULL, 0, NULL, 0, &retLen, NULL);
+	CloseHandle(device);
 }
 
 void CGiraffeDriver::StopApplication()
 {
+	HANDLE device = CreateFile(NT_DEVICE_NAME, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	DWORD retLen = 0;
+	DeviceIoControl(device, IOCTL_GIRAFFEOS_METHOD_STOP_APPLICATION, NULL, 0, NULL, 0, &retLen, NULL);
+	CloseHandle(device);
+}
 
+BOOL CGiraffeDriver::IsApplicationRunning()
+{
+	//HANDLE device = CreateFile(NT_DEVICE_NAME, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	//DWORD retLen = 0;
+	//DeviceIoControl(device, IOCTL_GIRAFFEOS_METHOD_STOP_APPLICATION, NULL, 0, NULL, 0, &retLen, NULL);
+	//CloseHandle(device);
+	return FALSE;
 }
