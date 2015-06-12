@@ -268,6 +268,8 @@ void CGiraffeLoaderDlg::OnOperationRun()
 {
 	// TODO: 在此添加命令处理程序代码
 
+	this->m_pDevice->ApplySettingToGiraffe(m_pBootSetting);
+
 	CString tmpStr;
 	this->m_hTaskFile.GetWindowTextW(tmpStr);
 	CFile *pFile = new CFile(tmpStr, CFile::modeRead);

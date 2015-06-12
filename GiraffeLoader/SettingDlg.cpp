@@ -38,6 +38,11 @@ BEGIN_MESSAGE_MAP(CSettingDlg, CDialogEx)
 	ON_WM_CLOSE()
 	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN1, &CSettingDlg::OnDeltaposSpin1)
 	ON_EN_CHANGE(IDC_EDIT1, &CSettingDlg::OnEnChangeEdit1)
+//	ON_NOTIFY(TRBN_THUMBPOSCHANGING, IDC_SLIDER1, &CSettingDlg::OnTRBNThumbPosChangingSlider1)
+ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER1, &CSettingDlg::OnNMCustomdrawSlider1)
+ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER2, &CSettingDlg::OnNMCustomdrawSlider2)
+ON_EN_CHANGE(IDC_EDIT2, &CSettingDlg::OnEnChangeEdit2)
+ON_EN_CHANGE(IDC_EDIT3, &CSettingDlg::OnEnChangeEdit3)
 END_MESSAGE_MAP()
 
 
@@ -57,6 +62,12 @@ BOOL CSettingDlg::OnInitDialog()
 
 	tmpStr.Format(L"%d", m_heapMemory);
 	m_hHeapMemory.SetWindowTextW(tmpStr);
+	m_hHeapMemorySlider.SetPos(m_CPUID);
+
+
+	tmpStr.Format(L"%d", m_stackMemory);
+	m_hStackMemory.SetWindowTextW(tmpStr);
+	m_hStackMemorySlider.SetPos(m_stackMemory);
 
 	return TRUE;
 }
@@ -138,5 +149,86 @@ void CSettingDlg::OnEnChangeEdit1()
 		m_hCPUID.SetWindowTextW(tmpStr);
 	}
 
+
+}
+
+void CSettingDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+
+	// TODO:  Add your control notification handler code here
+
+	m_heapMemory = m_hHeapMemorySlider.GetPos();
+
+	CString tmpStr;
+	tmpStr.Format(L"%d", m_heapMemory);
+	
+	m_hHeapMemory.SetWindowTextW(tmpStr);
+
+	*pResult = 0;
+}
+
+
+void CSettingDlg::OnNMCustomdrawSlider2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+
+	// TODO:  Add your control notification handler code here
+
+	m_stackMemory = m_hStackMemorySlider.GetPos();
+
+	CString tmpStr;
+	tmpStr.Format(L"%d", m_stackMemory);
+
+	m_hStackMemory.SetWindowTextW(tmpStr);
+
+	*pResult = 0;
+}
+
+
+void CSettingDlg::OnEnChangeEdit2()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+
+	CString tmpStr;
+	m_hHeapMemory.GetWindowTextW(tmpStr);
+	m_heapMemory = _ttoi(tmpStr);
+	if (m_heapMemory < 1)
+	{
+		m_heapMemory = 1;
+		tmpStr.Format(L"%d", m_heapMemory);
+		m_hHeapMemory.SetWindowTextW(tmpStr);
+	}
+
+	m_hHeapMemorySlider.SetPos(m_heapMemory);
+
+}
+
+
+void CSettingDlg::OnEnChangeEdit3()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+
+	CString tmpStr;
+	m_hStackMemory.GetWindowTextW(tmpStr);
+	m_stackMemory = _ttoi(tmpStr);
+	if (m_stackMemory < 1)
+	{
+		m_stackMemory = 1;
+		tmpStr.Format(L"%d", m_stackMemory);
+		m_hStackMemory.SetWindowTextW(tmpStr);
+	}
+
+	m_hStackMemorySlider.SetPos(m_stackMemory);
 
 }

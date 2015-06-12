@@ -1,4 +1,7 @@
 #pragma once
+
+typedef struct _BootSetting BootSetting, *PBootSetting;
+
 class CGiraffeDriver
 {
 public:
@@ -8,7 +11,7 @@ public:
 	BOOL StartDriver();
 	void StopDriver();
 
-	void ApplySettingToGiraffe(unsigned long cpuID, unsigned long memorySize);
+	void ApplySettingToGiraffe(BootSetting * pBootSetting);
 	void SetApplicationBin(unsigned char * data, unsigned long length);
 	void StartApplication();
 	void StopApplication();	

@@ -114,15 +114,12 @@ void CGiraffeDriver::StopDriver()
 	}
 }
 
-void CGiraffeDriver::ApplySettingToGiraffe(unsigned long cpuID, unsigned long memorySize)
+void CGiraffeDriver::ApplySettingToGiraffe(BootSetting * pBootSetting)
 {
-	BootSetting setting;
 
 	HANDLE device = CreateFile(NT_DEVICE_NAME, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 	DWORD retLen = 0;
-	setting.CPUID = cpuID;
-	setting.AllocMemory = memorySize;
-	DeviceIoControl(device, IOCTL_GIRAFFEOS_METHOD_APPLY_SETTING, &setting, sizeof(BootSetting), NULL, 0, &retLen, NULL);
+	DeviceIoControl(device, IOCTL_GIRAFFEOS_METHOD_APPLY_SETTING, pBootSetting, sizeof(BootSetting), NULL, 0, &retLen, NULL);
 	CloseHandle(device);
 	
 }
