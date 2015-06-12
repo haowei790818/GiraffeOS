@@ -7,7 +7,7 @@
 #include "afxwin.h"
 
 class CGiraffeDriver;
-
+typedef struct _BootSetting BootSetting, *PBootSetting;
 // CGiraffeLoaderDlg dialog
 class CGiraffeLoaderDlg : public CDialogEx
 {
@@ -48,4 +48,8 @@ public:
 	afx_msg void OnClose();
 	CEdit m_hTaskFile;
 	afx_msg void OnBnClickedBtnsettaskfile();
+	afx_msg void OnOperationSetting();
+
+private:
+	BootSetting * m_pBootSetting;
 };

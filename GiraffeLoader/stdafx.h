@@ -57,3 +57,4 @@
 #endif
 
 
+#include <winioctl.h>

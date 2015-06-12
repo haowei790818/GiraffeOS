@@ -30,7 +30,8 @@
 typedef struct _BootSetting
 {
 	unsigned long CPUID;
-	unsigned long AllocMemory;
+	unsigned long HeapMemory;
+	unsigned long StackMemory;
 } BootSetting, *PBootSetting;
 
 #endif /* IOCTL_H_ */

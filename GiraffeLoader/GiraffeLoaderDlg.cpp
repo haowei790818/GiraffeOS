@@ -8,7 +8,8 @@
 #include "afxdialogex.h"
 
 #include "GiraffeDriver.h"
-
+#include "SettingDlg.h"
+#include <ioctl.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -78,6 +79,7 @@ BEGIN_MESSAGE_MAP(CGiraffeLoaderDlg, CDialogEx)
 	ON_COMMAND(ID_FILE_EXIT, &CGiraffeLoaderDlg::OnFileExit)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDC_BtnSetTaskFile, &CGiraffeLoaderDlg::OnBnClickedBtnsettaskfile)
+	ON_COMMAND(ID_OPERATION_SETTING, &CGiraffeLoaderDlg::OnOperationSetting)
 END_MESSAGE_MAP()
 
 
@@ -209,6 +211,14 @@ int CGiraffeLoaderDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_pDevice = new CGiraffeDriver();
 
 	m_pDevice->StartDriver();
+
+	m_pBootSetting = (BootSetting *)malloc(sizeof(BootSetting));
+	memset(m_pBootSetting, 0, sizeof(BootSetting));
+
+	m_pBootSetting->CPUID = 1;
+	m_pBootSetting->HeapMemory = 1;
+	m_pBootSetting->StackMemory = 16;
+
 	
 	return 0;
 }
@@ -224,6 +234,8 @@ void CGiraffeLoaderDlg::OnDestroy()
 	m_pDevice->StopDriver();
 
 	delete m_pDevice;
+
+	free(m_pBootSetting);
 }
 
 
@@ -311,4 +323,16 @@ void CGiraffeLoaderDlg::OnBnClickedBtnsettaskfile()
 	pDlg->DoModal();
 
 	m_hTaskFile.SetWindowTextW(pDlg->GetPathName());
+}
+
+
+void CGiraffeLoaderDlg::OnOperationSetting()
+{
+	// TODO: Add your command handler code here
+	CSettingDlg dlg;
+	dlg.SetValue(m_pBootSetting);
+	if (dlg.DoModal() == IDOK)
+	{
+		dlg.GetValue(m_pBootSetting);
+	}	
 }
